@@ -1,0 +1,37 @@
+.financial-chart {
+  width: 100vw;
+  height: 500px;
+  display: flex;
+  flex-direction: row;
+  justify-content: space-around;
+  align-items: center;
+  flex-wrap: wrap;
+  padding: 20px;
+}
+
+.line-chart {
+  width: 60vw;
+  height: 400px;
+}
+
+.pie-chart {
+  width: 30vw;
+  height: 400px;
+}
+
+.toggle-switch {
+  width: 100%;
+  text-align: center;
+  margin-top: 20px;
+}
+
+.toggle-switch label {
+  font-size: 16px;
+  cursor: pointer;
+  display: block;
+  margin-top: 10px;
+}
+
+.toggle-switch input {
+  margin-right: 8px;
+}

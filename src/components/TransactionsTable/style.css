@@ -1,0 +1,46 @@
+.input-search-header{
+  display: flex;
+  justify-content: space-around;
+  align-items: center;
+}
+
+
+.input-search-bar input{
+  width: 70vw;
+  height: 2rem;
+  border-radius: 0.4rem;
+  border:none;
+  box-shadow:var(--shadow);
+  
+}
+
+
+.select-input{
+  width: 20vw;
+  height: 2.4rem;
+  border-radius: 0.4rem;
+  box-shadow:var(--shadow);
+}
+
+.heading-container{
+  display: flex;
+  flex-direction: row;
+  justify-content: space-around;
+  align-items: center;
+}
+.csv-buttons{
+  display: flex;
+  justify-content: space-around;
+  align-items: center;
+  max-width: 20vw;
+  box-sizing: border-box;
+}
+
+.sort-by-key{
+  display: flex;
+  flex-direction: row;
+  justify-content: center;
+  align-items: center;
+
+}
+

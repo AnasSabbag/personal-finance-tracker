@@ -1,0 +1,33 @@
+.signup-wrapper{
+  width: 70%;
+  max-width: 400px;
+  height: auto;
+  box-shadow: var(--shadow);
+  border-radius: 1rem;
+  padding: 1rem 1.5rem;
+  margin-top: 8%;
+}
+
+.login-wrapper{
+  width: 70%;
+  max-width: 400px;
+  height: auto;
+  box-shadow: var(--shadow);
+  border-radius: 1rem;
+  padding: 1rem 1.5rem;
+  margin-top: 8%;
+}
+
+.title{
+  font-weight: 500;
+  font-size: 1.2rem;
+  text-align: center;
+  
+}
+
+.login-para{
+  font-weight: 300px;
+  text-align: center;
+  margin: 0;
+  font-size: 0.8rem;
+}
