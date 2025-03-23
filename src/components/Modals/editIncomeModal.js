@@ -1,33 +1,54 @@
-import { Button, DatePicker, Form, Input, Select,Modal } from 'antd';
-import React from 'react'
+import React, { useEffect } from 'react'
+import { Modal,Form,Input,DatePicker,Select,Button } from 'antd';
+import dayjs from "dayjs";
 
-function AddIncome({
-  isIncomeModalVisible,
-  handleIncomeCancel,
-  onFinish,
-}) {
-
+function EditIncomeModal({showModal,setShowModal,txnData,updateTransaction}) {
+ 
   const [form]= Form.useForm();
+  
+  useEffect(() => {
+    form.setFieldsValue({
+      Name: txnData?.name,
+      amount: txnData?.amount,
+      tag: txnData?.tag, 
+      date: txnData?.date ? dayjs(txnData.date) : null, // Convert string to Day.js object
+    });
+  }, [txnData, form]);
+
 
   return (
-    <Modal 
-        title="Add Income"
-        onCancel={handleIncomeCancel}
-        open={isIncomeModalVisible}
-        footer={null}
-      >
+
+    txnData && <Modal
+      title="Edit Income Transaction"
+      open={showModal}
+      onCancel={()=>{
+        setShowModal(false)
+      }}
+      footer={null}
+    >
       
       <Form
         form={form}
         layout='vertical'
+        initialValues={{ 
+          Name: txnData?.name, 
+          amount: txnData?.amount,
+          date: txnData?.date ? dayjs(txnData.date) : null,
+          tag: txnData?.tag, 
+        }}  
+
         onFinish={(values)=>{
-          onFinish(values,"incomes");
-          form.resetFields();
+          
+          //updateTxn()
+          updateTransaction(txnData.id,values,"incomes");
+          setShowModal(false);
+
         }}
       >
         <Form.Item
-          label="Name"
+          label="new Name"
           name="Name"
+         
           rules={[
             {
               required:true,
@@ -35,12 +56,14 @@ function AddIncome({
             },
           ]}
         >
+          
           <Input type='text' className='custom-input' />
         </Form.Item>
 
         <Form.Item
-          label="Amount"
+          label="new Amount"
           name="amount"
+          
           rules={[
             {
               required:true,
@@ -48,11 +71,12 @@ function AddIncome({
             },
           ]}
         >
-          <Input type='number' className='custom-input' />
+          <Input type='number' className='custom-input'  />
+
         </Form.Item>
         
         <Form.Item
-          label="Date"
+          label="new Date"
           name="date"
           rules={[
             {
@@ -61,12 +85,13 @@ function AddIncome({
             },
           ]}
         >
-          <DatePicker format="YYYY-MM-DD" className='custom-input' />
+          <DatePicker format="YYYY-MM-DD" className='custom-input' value={txnData.date} />
         </Form.Item>
 
         <Form.Item
-          label="Tag"
+          label="new Tag"
           name="tag"
+          
           rules={[
             {
               required:true,
@@ -75,7 +100,7 @@ function AddIncome({
           ]}
         >
           
-          <Select className='select-input-2' >
+          <Select className='select-input-2'>
             <Select.Option value="salary" >Salary</Select.Option>
             <Select.Option value="freelance" >Freelance</Select.Option>
             <Select.Option value="investment" >Investment</Select.Option>
@@ -90,18 +115,18 @@ function AddIncome({
             className='btn btn-blue'
             type='primary'
             htmlType='submit'
+            onClick={()=>setShowModal(false)}
           >
-            AddIncome
+            Edit Income
           </Button>
 
         </Form.Item>
 
       </Form>
 
-    </Modal>
 
-    
+    </Modal> 
   )
 }
 
-export default AddIncome;
+export default EditIncomeModal;

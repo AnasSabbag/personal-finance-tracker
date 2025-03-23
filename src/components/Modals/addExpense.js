@@ -1,7 +1,7 @@
 import { Button, DatePicker, Form, Input, Select, Modal } from 'antd';
 import React from 'react';
 
-function AddExpense({ isExpenseModalVisible, handleExpenseCancel, onfinish }) {
+function AddExpense({ isExpenseModalVisible, handleExpenseCancel, onFinish }) {
   const [form] = Form.useForm();
 
   return (
@@ -15,7 +15,7 @@ function AddExpense({ isExpenseModalVisible, handleExpenseCancel, onfinish }) {
         form={form}
         layout="vertical" 
         onFinish={(values) => { 
-          onfinish(values, "expenses"); 
+          onFinish(values, "expenses"); 
           form.resetFields();
         }}
       >
@@ -71,9 +71,10 @@ function AddExpense({ isExpenseModalVisible, handleExpenseCancel, onfinish }) {
           <Select className="select-input-2">
             <Select.Option value="food">Food & grocery</Select.Option>
             <Select.Option value="education">Education</Select.Option>
-            <Select.Option value="office">Shopping</Select.Option>
+            <Select.Option value="shopping">Shopping</Select.Option>
             <Select.Option value="entertainment">Entertainment</Select.Option>
-            <Select.Option value="other-expenses">Other-expenses</Select.Option> 
+            <Select.Option value="bills">Bills</Select.Option>
+            <Select.Option value="otherExpenses">Other-expenses</Select.Option> 
           </Select>
         </Form.Item>
         

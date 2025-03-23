@@ -1,61 +1,179 @@
 import React, { useState } from 'react'
 import "./style.css"
-import {  Radio, Select, Table } from 'antd';
+import {   Radio, Select, Table } from 'antd';
 import Button from '../Buttons';
 import { parse, unparse } from 'papaparse';
 
 import { toast } from 'react-toastify';
+import EditIncomeModal from '../Modals/editIncomeModal';
+import EditExpenseModal from '../Modals/editExpenseModal';
+import { db,auth } from '../../firebase';
+import { updateDoc,doc, deleteDoc } from 'firebase/firestore';
+import { useAuthState } from 'react-firebase-hooks/auth';
 
 
-function TransactionTable({transactions,addTransaction,fetchTransaction}) {
+function TransactionTable({transactions,setTransactions,addTransaction,fetchTransaction}) {
+   
+    const [user] = useAuthState(auth);
     const [search,setSearch]=useState("");
     const [typeFilter,setTypeFilter]=useState('');
     const [sortKey,setSortKey]=useState('');
-    const cloumns = [
-      {
-        title:'Name',
-        dataIndex:'name',
-        key:'name',
-      },
-      {
-        title:'Amount',
-        dataIndex:'amount',
-        key:'amount',
-      },
-      {
-        title:'Tag',
-        dataIndex:'tag',
-        key:'tag',
-      },
-      {
-        title:'Date',
-        dataIndex:'date',
-        key:'date',
-      },
-      {
-        title:'Type',
-        dataIndex:'type',
-        key:'type',
-      },
-    ];
-  
+
+    //changes here for edit modal 
+    const [showModal,setShowModal]=useState(false);
+    const [txnData,setTxnData]=useState(null);
+    
+
+  const cloumns = [
+    {
+      title:'Name',
+      dataIndex:'name',
+      key:'name',
+    },
+    {
+      title:'Amount',
+      dataIndex:'amount',
+      key:'amount',
+    },
+    {
+      title:'Tag',
+      dataIndex:'tag',
+      key:'tag',
+    },
+    {
+      title:'Date',
+      dataIndex:'date',
+      key:'date',
+    },
+    {
+      title:'Type',
+      dataIndex:'type',
+      key:'type',
+    },
+    {
+      title: "Actions",
+      key: "actions",
+      render: (_, record) => (
+        <div style={{ display: "flex", gap: "10px" }}>
+          
+          <Button
+            className='btn'
+            type='primary'
+            htmlType='submit'
+            text={"Edit"}
+            onClick={() => handleEdit(record)}
+          />
+          <Button
+            className='btn'
+            type='danger'
+            htmlType='submit'
+            text={"X"}
+          
+            onClick={() => handleDelete(record.id)}
+          />
+          
+        </div>
+      ),
+    },
+  ];
+
   let filteredTransactions = transactions.filter((item) => 
-      item.name?.toLowerCase().includes(search?.toLowerCase() || '') &&
-      (typeFilter ? item.type?.includes(typeFilter) : true)
+    item.name?.toLowerCase().includes(search?.toLowerCase() || '') &&
+    (typeFilter ? item.type?.includes(typeFilter) : true)
   );
     
 
-  let sortedTransactions =filteredTransactions.sort((a,b)=>{
-    if(sortKey=="date"){
+  let sortedTransactions = filteredTransactions.sort((a,b)=>{
+    if(sortKey==="date"){
       return new Date(b.date)- new Date(a.date);
     }
-    else if(sortKey=="amount"){
+    else if(sortKey==="amount"){
       return b.amount-a.amount;
     }
     else{
       return 0;
     }
   });
+
+  const handleDelete = (txId) => { 
+    deleteTransaction(txId);
+      
+  };
+
+   // Open Edit Modal
+  const handleEdit = (record) => {
+    
+    setTxnData(record);
+    setShowModal(true);
+  };
+
+
+  const updateTransaction = async(transactionId,updatedData,typ)=>{
+    try{
+      const editedTransaction={
+        type:typ,
+        date: updatedData.date.format("YYYY-MM-DD"),
+        amount:parseFloat(updatedData.amount),
+        tag:updatedData.tag,
+        name:updatedData.Name,
+      };
+      
+      const transactionRef = doc(db, "users", user.uid, "transactions", transactionId);
+      
+      await updateDoc(transactionRef,editedTransaction);
+      
+      
+      // now handle updates;
+      const updatedTransactions = filteredTransactions.map(item => 
+        item.id === transactionId 
+          ? { 
+              ...item, // Keep existing properties
+              type: typ,
+              date: updatedData.date.format("YYYY-MM-DD"),
+              amount: parseFloat(updatedData.amount),
+              tag: updatedData.tag,
+              name: updatedData.Name
+            } 
+          : item
+      );
+      
+      setTransactions(updatedTransactions);
+      toast.success("transaction updated successfully!!!");
+
+    }catch(err){
+      toast.error("failed to update transactions: ",err);
+
+    }
+
+  }
+
+  const deleteTransaction= async(transactionId)=>{
+    
+    try {
+      const transactionRef = doc(db, "users", user.uid, "transactions", transactionId);
+      await deleteDoc(transactionRef);
+      
+
+      const updatedTransactions = filteredTransactions.filter(item => 
+        item.id !== transactionId 
+      );
+      
+      setTransactions(updatedTransactions);
+      toast.success("transaction deleted successfully!!!");
+      
+    } catch (err) {
+      toast.error("failed to delete transactions:",err);
+        
+    }
+
+
+  }
+
+
+
+
+
+
 
   function exportToCSV() {
     // Format the date in YYYY-MM-DD before exporting
@@ -90,7 +208,7 @@ function TransactionTable({transactions,addTransaction,fetchTransaction}) {
       parse(event.target.files[0],{
         header:true,
         complete:async function (results) {
-          console.log("Result-->>",results);
+          
           for(const transaction of results.data){
             const newTransaction = {
               ...transaction,
@@ -105,7 +223,7 @@ function TransactionTable({transactions,addTransaction,fetchTransaction}) {
       });
       event.target.files=null;
     } catch (error) {
-      console.log("Erro",error);
+      
       toast.error(error.message)
     }
 
@@ -178,10 +296,25 @@ function TransactionTable({transactions,addTransaction,fetchTransaction}) {
     </div>  
     
 
-    <Table dataSource={sortedTransactions} columns={cloumns} />
-  
+    <Table dataSource={sortedTransactions} columns={cloumns} rowKey="key" />
+
+    
+
+            
+  {txnData && (
+    txnData.type === "incomes" ? (
+      <EditIncomeModal setShowModal={setShowModal} showModal={showModal} txnData={txnData} updateTransaction={updateTransaction} />
+    ) : txnData.type === "expenses" ? (
+      <EditExpenseModal setShowModal={setShowModal} showModal={showModal} txnData={txnData} updateTransaction={updateTransaction} />
+    ) : null
+  )}
+       
+        
+      
+1
   </> 
   )
 }
 
 export default TransactionTable
+
