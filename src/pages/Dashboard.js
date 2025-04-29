@@ -4,7 +4,7 @@ import Cards from '../components/Cards';
 import AddIncome from '../components/Modals/addIncome';
 import AddExpense from '../components/Modals/addExpense';
 import { toast } from 'react-toastify';
-import {  addDoc,collection, getDocs, query } from 'firebase/firestore';
+import { addDoc,collection, getDocs, query,deleteDoc, doc } from 'firebase/firestore';
 import { auth, db } from '../firebase';
 import { useAuthState } from 'react-firebase-hooks/auth';
 import TransactionTable from '../components/TransactionsTable';
@@ -54,7 +54,7 @@ function Dashboard() {
   const calculateBalance=useCallback(()=>{
     let incomeTotal = 0;
     let expenseTotal = 0;
-
+    
     transactions.forEach((transaction) => {
       if (transaction.type === "incomes") {
         incomeTotal += transaction.amount;
@@ -101,6 +101,36 @@ function Dashboard() {
   };
 
 
+  useEffect(() => {
+     calculateBalance();
+  }, [transactions, calculateBalance]);
+  
+
+  async function deleteAllTransaction(){
+
+    try {
+      const transactionRef= collection(db,`users/${user.uid}/transactions`);
+      const q= query(transactionRef);
+      const querySnapshot=await getDocs(q);
+      
+      querySnapshot.forEach(async(transactionDoc)=>{
+        await deleteDoc(doc(db,`users/${user.uid}/transactions`,transactionDoc.id));
+      })
+      
+     
+      setTransactions([]);
+      calculateBalance();
+      toast.success(`transactions removed successfully`);
+     
+    } catch (error) {
+      toast.error(`failed to delete Txn : ${error}`);
+      
+    }
+
+
+  } 
+
+
 
   async function addTransaction(transaction,many){
     try {
@@ -131,13 +161,14 @@ function Dashboard() {
       ) : (
         <>
           <div className='greeting-user' style={{position:'fixed',marginLeft:'10px',color:'lightblue'}}>
-            <h4>Hii, Welcome back {user.displayName}</h4>
+            <h4>Hii, Welcome back {user?.displayName}</h4>
           </div>
           <Cards
             user={user}
             income={income}
             expense={expense}
             totalBalance={totalBalance}
+            removeAllTransaction={deleteAllTransaction}
             showExpenseModal={() => setIsExpenseModalVisible(true)}
             showIncomeModal={() => setIsIncomeModalVisible(true)}
           />
@@ -154,6 +185,7 @@ function Dashboard() {
           />
           <TransactionTable 
             transactions={transactions} 
+            addTransaction={addTransaction}
             fetchTransaction={fetchTransaction} 
             setTransactions={setTransactions}
           />

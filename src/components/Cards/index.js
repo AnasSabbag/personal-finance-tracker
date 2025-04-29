@@ -3,14 +3,14 @@ import "./style.css"
 import { Card, Row } from 'antd';
 import Button from '../Buttons';
 
-function Cards({user,income,expense,totalBalance,showExpenseModal,showIncomeModal}) {
+function Cards({user,income,expense,totalBalance,removeAllTransaction,showExpenseModal,showIncomeModal}) {
   return (
     <div>
       <Row className="my-row">
         <Card className="my-card" title="Current Balance">
-         <h2>{user.displayName}</h2>
+         <h2>{user?.displayName}</h2>
          <p>₹{totalBalance}</p>
-         <Button text={"Reset Balance"} disabled={true} blue={true}/> 
+         <Button text={"Reset Balance"} disabled={true} blue={true} onClick={removeAllTransaction} /> 
         </Card>
         
         <Card className="my-card" title="Total Income">

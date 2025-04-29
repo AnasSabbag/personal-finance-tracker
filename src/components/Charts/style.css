@@ -21,7 +21,8 @@
 
 .toggle-switch {
   width: 100%;
-  text-align: center;
+  text-align: right;
+  margin-right: 220px;
   margin-top: 20px;
 }
 
