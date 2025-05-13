@@ -10,6 +10,8 @@ import EditExpenseModal from '../Modals/editExpenseModal';
 import { db,auth } from '../../firebase';
 import { updateDoc,doc, deleteDoc } from 'firebase/firestore';
 import { useAuthState } from 'react-firebase-hooks/auth';
+import DeleteTxnModal from '../Modals/deleteTxnModal';
+
 
 
 function TransactionTable({transactions,setTransactions,addTransaction,fetchTransaction}) {
@@ -22,8 +24,8 @@ function TransactionTable({transactions,setTransactions,addTransaction,fetchTran
     //changes here for edit modal 
     const [showModal,setShowModal]=useState(false);
     const [txnData,setTxnData]=useState(null);
-    
 
+    const [showDeleteModal,setShowDeleteModal]=useState(false);
   const cloumns = [
     {
       title:'Name',
@@ -69,7 +71,7 @@ function TransactionTable({transactions,setTransactions,addTransaction,fetchTran
             htmlType='submit'
             text={"X"}
           
-            onClick={() => handleDelete(record.id)}
+            onClick={() => handleDelete(record)}
           />
           
         </div>
@@ -95,9 +97,13 @@ function TransactionTable({transactions,setTransactions,addTransaction,fetchTran
     }
   });
 
-  const handleDelete = (txId) => { 
-    deleteTransaction(txId);
-      
+  const handleDelete = (record) => { 
+    //handle from here...
+    
+    setShowDeleteModal(true);
+    setTxnData(record);
+    
+
   };
 
    // Open Edit Modal
@@ -295,10 +301,14 @@ function TransactionTable({transactions,setTransactions,addTransaction,fetchTran
       </div>
     </div>  
     
+        
 
     <Table dataSource={sortedTransactions} columns={cloumns} rowKey="key" />
 
-    
+
+    {
+      txnData&& <DeleteTxnModal showDeleteModal={showDeleteModal} setShowDeleteModal={setShowDeleteModal} txnData={txnData} deleteTransaction={deleteTransaction} />
+    }
 
             
   {txnData && (

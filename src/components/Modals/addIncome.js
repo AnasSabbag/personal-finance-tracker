@@ -48,7 +48,7 @@ function AddIncome({
             },
           ]}
         >
-          <Input type='number' className='custom-input' />
+          <Input type='number' className='custom-input'  min={1} />
         </Form.Item>
         
         <Form.Item
